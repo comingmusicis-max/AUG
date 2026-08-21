@@ -1,0 +1,44 @@
+{
+  "project": "wclinic-hifu-05-08-69",
+  "media_dir": "D:/ClinicVideo/wclinic-hifu-05-08-69",
+  "canvas": {"width": 1080, "height": 1920},
+  "fps": 30,
+  "scenes": [
+    {
+      "name": "1. อินฟลูนั่งโซฟา ฟีลสัมภาษณ์",
+      "clips": [
+        {"file": "C1095.MP4"},
+        {"file": "C1114.MP4"}
+      ],
+      "text": [
+        {"content": "เหตุผลที่เลือกทำ\nโปรแกรม HIFU\nที่ W Clinic ตลาดไท"}
+      ]
+    },
+    {
+      "name": "2. ก่อนทำ (มุมตรง/มุมข้าง/มุมหน้า)",
+      "clips": [
+        {"file": "DSC05509.JPG", "still": 2.0},
+        {"file": "DSC05514.JPG", "still": 2.0},
+        {"file": "DSC05512.JPG", "still": 2.0}
+      ],
+      "voice": [
+        {"file": "C1116.MP4"}
+      ],
+      "text": [
+        {"content": "-ปัญหาแก้มกลม\n-ขาดความกระชับ\n-มีไขมันส่วนเกิน"}
+      ]
+    },
+    {
+      "name": "3. ขณะทำ นอนชิลๆ",
+      "clips": [
+        {"file": "C1137.MP4"},
+        {"file": "C1138.MP4"},
+        {"file": "C1135.MP4"},
+        {"file": "C1136.MP4"}
+      ],
+      "text": [
+        {"content": "บอกลาแก้มกลม รีบมาทำ โปรแกรม HIFU\n300 Shots แค่ 2,599.-"}
+      ]
+    }
+  ]
+}
