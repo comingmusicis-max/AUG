@@ -114,8 +114,18 @@ Field reference — everything optional except `file`:
 | | `y` | vertical position, −0.5 top to 0.5 bottom; default −0.32 |
 | | `size` | relative scale; default 1.0, use ~0.65 for disclaimers |
 
-To hold a still for exactly as long as its voiceover runs, read the duration from
-`media_report.json` and put that number in `still`.
+To hold a still for exactly as long as its voiceover runs, write any placeholder
+`still` and let the fitter do the arithmetic once the voiceover has been probed:
+
+```bash
+python scripts/fit_stills.py plan/edit_plan.json          # shows the change
+python scripts/fit_stills.py plan/edit_plan.json --write  # saves it
+```
+
+It divides the voice track evenly across a scene's stills, and only touches
+scenes that are all stills and carry a voice — a scene with footage in it sets
+its own length and is left alone. Re-run it after any re-cut of the voiceover;
+it is idempotent.
 
 ### 4. Build
 

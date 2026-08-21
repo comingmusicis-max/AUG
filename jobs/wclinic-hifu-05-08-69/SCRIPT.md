@@ -14,8 +14,7 @@
 ## จุดที่ตีความไว้ — ตรวจก่อนสั่ง build
 
 1. **ซีน 2 ค้างรูปละ 2.0 วิ เป็นค่าตั้งชั่วคราว** brief ไม่ได้ระบุความยาว
-   หลังรัน `fetch_media.py` ให้เปิด `media_report.json` ดูความยาวจริงของ `C1116.MP4`
-   แล้วหาร 3 ใส่กลับใน `still` ของทั้งสามรูป ภาพจะได้จบพร้อมเสียงพอดี
+   `fit_stills.py` ในขั้นตอนรันจะแทนที่ตัวเลขนี้ด้วยความยาวจริงของ `C1116.MP4` หาร 3 ให้เอง
 2. **ซีน 2 brief เขียนว่า "ใช้เสียงจากคลิปนี้ เน้นตอนพูดเรื่องปัญหา"** — ตอนนี้ตั้งไว้ใช้ทั้งคลิป
    เพราะไม่รู้ว่าช่วงพูดเรื่องปัญหาอยู่วินาทีไหน ต้องฟังแล้วใส่ `in` / `out` เอง
 3. **ซีน 1 และ 3 ไม่ได้ mute** ซีน 1 อินฟลูพูดเองจึงต้องเก็บเสียงไว้
@@ -40,10 +39,17 @@
 ## วิธีรัน (บนเครื่อง Windows ที่มี CapCut)
 
 ```bash
-python .claude/skills/capcut-edit-builder/scripts/fetch_media.py jobs/wclinic-hifu-05-08-69/plan/media.json
-# เปิด media_report.json อ่านความยาว C1116.MP4 แล้วปรับ still ในซีน 2 ก่อน
-python .claude/skills/capcut-edit-builder/scripts/build_draft.py jobs/wclinic-hifu-05-08-69/plan/edit_plan.json
+set S=.claude\skills\capcut-edit-builder\scripts
+set J=jobs\wclinic-hifu-05-08-69\plan
+
+python %S%\fetch_media.py %J%\media.json
+python %S%\fit_stills.py %J%\edit_plan.json --write
+python %S%\build_draft.py %J%\edit_plan.json
 ```
+
+`fit_stills.py` คือขั้นที่เมื่อก่อนต้องแก้มือ — มันอ่านความยาวจริงของ `C1116.MP4`
+จาก `media_report.json` แล้วหารลง `still` ของสามรูปในซีน 2 ให้เอง ภาพจะจบพร้อมเสียงพอดี
+(ตัดคำว่า `--write` ออกถ้าอยากดูตัวเลขก่อนว่าจะเปลี่ยนเป็นเท่าไหร่)
 
 ปิด CapCut ก่อนรัน `build_draft.py` (สคริปต์จะไม่ยอมรันถ้า CapCut เปิดอยู่)
 
