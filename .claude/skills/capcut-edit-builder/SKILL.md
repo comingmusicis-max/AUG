@@ -142,6 +142,21 @@ It prints a scene-by-scene timeline. Check the total runtime against the platfor
 the client is posting to; anything past ~60s for TikTok or Reels is worth
 mentioning, especially when one scene is eating half the video.
 
+**The build says it wrote the project but CapCut's list is empty.** The two
+causes look identical from the terminal, so check rather than guess:
+
+```bash
+python scripts/doctor.py --expect <project-name>
+```
+
+It lists every draft root on the machine and says which one the project is
+actually in. If it is on disk and still not listed, CapCut is holding a stale
+list — quit it completely and reopen, since it reads the folder at startup.
+If it is nowhere, the build wrote to a root this CapCut does not read; pass the
+one `doctor.py` names via `--draft-root`. CapCut has moved this folder between
+versions and lets the user relocate it in Settings, so the hardcoded default is
+a starting guess, not a fact.
+
 ### 5. Hand it over
 
 Write `SCRIPT.md` into the media folder — timeline table plus, importantly, a
