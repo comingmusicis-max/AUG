@@ -26,10 +26,20 @@ def voice_duration(scene, report, scene_name):
             continue
         m = report.get(name)
         if m is None:
-            raise KeyError(f"{scene_name}: {name} is not in media_report.json — "
-                           "run fetch_media.py first")
+            raise SystemExit(f"{scene_name}: {name} is not in "
+                             "media_report.json — run fetch_media.py first")
+        if "error" in m:
+            # The report records why a probe failed. Reporting that beats
+            # accusing the clip of being a photo, which is what a missing
+            # duration looks like from here.
+            raise SystemExit(
+                f"{name}: {m['error']} — media_report.json carries no "
+                "durations, so there is nothing to fit.\n"
+                "install ffmpeg, then re-run fetch_media.py: it keeps the "
+                "files it already downloaded and only re-probes them."
+            )
         if not m.get("duration"):
-            raise ValueError(f"{scene_name}: {name} has no duration; it probed "
+            raise SystemExit(f"{scene_name}: {name} has no duration; it probed "
                              "as a still, so it cannot be a voice track")
         # `at` places a clip later in the scene, so the track ends further out
         # than the clips' lengths added up.

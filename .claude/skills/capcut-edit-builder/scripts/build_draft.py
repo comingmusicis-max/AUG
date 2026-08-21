@@ -527,6 +527,16 @@ def main() -> int:
                     help="replace an existing project of the same name")
     args = ap.parse_args()
 
+    # Every clip is measured with ffprobe. Without it the failure lands deep in
+    # the build as a bare FileNotFoundError, which reads like a bug in the plan.
+    if shutil.which("ffprobe") is None:
+        raise SystemExit(
+            "ffprobe not found on PATH — it is what measures each clip's "
+            "length and frame size.\n"
+            "install ffmpeg (Windows: winget install ffmpeg), open a new "
+            "terminal so PATH updates, then re-run."
+        )
+
     if not os.path.isdir(args.draft_root):
         raise SystemExit(f"CapCut draft folder not found: {args.draft_root}")
     # Only CapCut's own folder is at risk of being overwritten; writing a draft
