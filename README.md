@@ -7,4 +7,9 @@
 - `jobs/<งาน>/plan/edit_plan.json` — แผนไทม์ไลน์
 - `jobs/<งาน>/SCRIPT.md` — สรุปไทม์ไลน์ + สิ่งที่ต้องทำมือ
 
-งานปัจจุบัน: `jobs/wclinic-hifu-05-08-69/` (W Clinic ตลาดไท — CASE 2 ยกกระชับ HIFU)
+งานปัจจุบัน (W Clinic ตลาดไท ออกกอง 05/08/69):
+
+| งาน | เคส | ซีน | ไฟล์ |
+|---|---|---|---|
+| `jobs/wclinic-thread-lift-05-08-69/` | CASE 1 — ร้อยไหม V-Lift (แคมเปญวันแม่) | 5 | 12 |
+| `jobs/wclinic-hifu-05-08-69/` | CASE 2 — ยกกระชับ HIFU | 3 | 10 |
