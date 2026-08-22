@@ -1,4 +1,4 @@
-@py -3 -x "%~f0" %* & pause & exit /b
+@py -3 -c "" >nul 2>&1 && (py -3 -x "%~f0" %*) || (echo.&echo   Python 3 does not run on this machine.&echo   The py launcher points at an install that is not there.&echo.&echo   Install it from  https://www.python.org/downloads/&echo   and TICK "Add python.exe to PATH" during setup.&echo   Resolve needs the same Python for scripting, so this is&echo   required either way.&echo.&echo   Then double-click this file again.&echo.)&pause&exit /b
 """Grade C0001 in the DaVinci project 'jj'. One file, nothing else needed.
 
 Save this anywhere and run it. It writes its own LUT, finds Resolve, and puts
