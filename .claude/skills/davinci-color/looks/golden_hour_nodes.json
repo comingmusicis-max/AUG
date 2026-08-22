@@ -1,0 +1,52 @@
+{
+  "note": "The golden-hour graph. Build six empty nodes on the reference clip once (Alt+S five times), run this, and the whole graph propagates to every clip on the timeline. Numbers live in the LUT at node 3; the other nodes are handles you turn by hand afterwards.",
+
+  "grades": [
+    {
+      "name": "golden hour graph, built on the reference clip",
+      "select": {"tracks": [1], "indexes": [1]},
+      "mark": "Orange",
+      "nodes": [
+        {
+          "label": "01 BALANCE",
+          "note": "Neutral on purpose. This is where a clip that drifted off the others gets pulled back — one clip at a time, in trims below.",
+          "cdl": {"slope": [1.0, 1.0, 1.0], "offset": [0.0, 0.0, 0.0], "power": [1.0, 1.0, 1.0], "saturation": 1.0}
+        },
+        {
+          "label": "02 EXPOSURE",
+          "note": "Backlit shots land dark. A touch of slope here, before the look, so the LUT gets the level it was designed for.",
+          "cdl": {"slope": [1.03, 1.03, 1.03], "offset": [0.0, 0.0, 0.0], "power": [1.0, 1.0, 1.0], "saturation": 1.0}
+        },
+        {
+          "label": "03 LOOK",
+          "note": "golden_hour.cube — the whole look. Everything above and below it is a handle.",
+          "lut": "golden_hour.cube"
+        },
+        {
+          "label": "04 SKIN",
+          "note": "The LUT adds saturation globally; this takes a little back so faces do not go orange under a sun that is already orange.",
+          "cdl": {"slope": [1.0, 1.0, 1.0], "offset": [0.0, 0.0, 0.0], "power": [1.0, 1.0, 1.0], "saturation": 0.97}
+        },
+        {
+          "label": "05 SKY - window, add by hand",
+          "note": "Off deliberately. A window or qualifier cannot be scripted, so this node is left empty and disabled: switch it on, draw a gradient across the sky, and it is already in the right place in the chain.",
+          "enabled": false
+        },
+        {
+          "label": "06 TRIM",
+          "note": "Neutral. The last word before output, for shot-to-shot matching.",
+          "cdl": {"slope": [1.0, 1.0, 1.0], "offset": [0.0, 0.0, 0.0], "power": [1.0, 1.0, 1.0], "saturation": 1.0}
+        }
+      ]
+    }
+  ],
+
+  "match": [
+    {
+      "source": {"tracks": [1], "indexes": [1]},
+      "targets": {"tracks": [1]}
+    }
+  ],
+
+  "trims": []
+}

@@ -58,7 +58,7 @@ def select(records, sel):
     return out
 
 
-def cdl_payload(cdl):
+def cdl_payload(cdl, node=None):
     """Resolve wants CDL values as space-separated strings, not numbers."""
     def triple(key, default):
         vals = cdl.get(key, default)
@@ -67,12 +67,48 @@ def cdl_payload(cdl):
         return " ".join(f"{float(v):.6f}" for v in vals)
 
     return {
-        "NodeIndex": str(cdl.get("node", 1)),
+        "NodeIndex": str(node if node is not None else cdl.get("node", 1)),
         "Slope": triple("slope", [1, 1, 1]),
         "Offset": triple("offset", [0, 0, 0]),
         "Power": triple("power", [1, 1, 1]),
         "Saturation": f"{float(cdl.get('saturation', 1.0)):.6f}",
     }
+
+
+NODE_KEYS = {"node", "label", "lut", "cdl", "enabled", "note"}
+
+
+def node_ops(grade):
+    """One grade entry as a list of per-node operations.
+
+    A graph is written as `nodes`, one entry per node in order. The older flat
+    form — a `lut` plus `lut_node`, or a `cdl` — is the same thing with a single
+    node, so both go through here and the rest of the script sees one shape.
+    """
+    if "nodes" in grade:
+        if "lut" in grade or "cdl" in grade:
+            raise SystemExit("a grade entry has both 'nodes' and a top-level "
+                             "'lut'/'cdl'. Put them inside 'nodes'.")
+        ops = []
+        for position, spec in enumerate(grade["nodes"], start=1):
+            unknown = set(spec) - NODE_KEYS
+            if unknown:
+                raise SystemExit(f"unknown key(s) in node {position}: "
+                                 f"{', '.join(sorted(unknown))}\n"
+                                 f"valid: {', '.join(sorted(NODE_KEYS))}")
+            op = dict(spec)
+            # Position in the list is the node number unless it says otherwise,
+            # so a graph reads top-to-bottom the way it looks on the Color page.
+            op["node"] = int(spec.get("node", position))
+            ops.append(op)
+        return ops
+
+    ops = []
+    if "lut" in grade:
+        ops.append({"node": int(grade.get("lut_node", 1)), "lut": grade["lut"]})
+    if "cdl" in grade:
+        ops.append({"node": int(grade["cdl"].get("node", 1)), "cdl": grade["cdl"]})
+    return ops
 
 
 def check_node(rec, node, action):
@@ -86,20 +122,37 @@ def check_node(rec, node, action):
             "PowerGrade with the right graph), then re-run.")
 
 
+def check_file(path, spec_path, kind, hint):
+    """A bare LUT name resolves against Resolve's own folder, so only absolute
+    paths can be checked from here — but a wrong absolute path is worth catching
+    before half a timeline has been graded."""
+    if path and os.path.isabs(path) and not os.path.isfile(path):
+        raise SystemExit(f"{spec_path}: {kind} not found: {path}\n{hint}")
+
+
 def load_spec(path):
     with open(path, encoding="utf-8") as f:
         spec = json.load(f)
-    for grade in spec.get("grades", []):
-        if "lut" not in grade and "cdl" not in grade:
-            raise SystemExit(f"{path}: a grade entry has neither 'lut' nor 'cdl' — "
-                             "it would do nothing")
-        lut = grade.get("lut")
-        # A bare filename is resolved against Resolve's own LUT folder, so only
-        # absolute paths can be checked from here.
-        if lut and os.path.isabs(lut) and not os.path.isfile(lut):
-            raise SystemExit(f"{path}: LUT not found: {lut}\n"
-                             "Run make_lut.py first, or pass the name as it "
-                             "appears in Resolve's LUT list.")
+
+    unknown = set(spec) - {"project", "timeline", "grades", "match", "trims", "note"}
+    if unknown:
+        raise SystemExit(f"{path}: unknown top-level key(s): {', '.join(sorted(unknown))}")
+
+    lut_hint = ("Run make_lut.py first, or pass the name as it appears in "
+                "Resolve's LUT list.")
+    for phase in ("grades", "trims"):
+        for grade in spec.get(phase, []):
+            if not {"lut", "cdl", "nodes", "drx"} & set(grade):
+                raise SystemExit(f"{path}: a {phase[:-1]} entry has no 'nodes', "
+                                 "'drx', 'lut' or 'cdl' — it would do nothing")
+            check_file(grade.get("drx"), path, "grade file",
+                       "Export one from a gallery still: right-click > Export, "
+                       "format .drx.")
+            check_file(grade.get("lut"), path, "LUT", lut_hint)
+            for node in grade.get("nodes", []):
+                check_file(node.get("lut"), path, "LUT", lut_hint)
+            # node_ops does the rest of the validation, and raises the same way.
+            node_ops(grade)
     return spec
 
 
@@ -140,7 +193,8 @@ def main():
 
     if args.list:
         for rec in records:
-            nodes = f"  ({rec['nodes']} nodes)" if rec["nodes"] else ""
+            n = rec["nodes"]
+            nodes = f"  ({n} node{'' if n == 1 else 's'})" if n else ""
             print(f"  V{rec['track']} #{rec['index']:>3}  {rec['name']}{nodes}")
         return
 
@@ -150,45 +204,86 @@ def main():
         project.RefreshLUTList()
         resolve.OpenPage("color")
 
-    applied = 0
-    for n, grade in enumerate(spec.get("grades", []), start=1):
-        chosen = select(records, grade.get("select", {}))
-        label = grade.get("name", f"grade {n}")
-        if not chosen:
-            print(f"  {label}: matched no clips — check its select block")
-            continue
+    def run_phase(entries, phase):
+        """Apply one list of grade entries. Used for `grades` and again for `trims`."""
+        count = 0
+        for n, grade in enumerate(entries, start=1):
+            chosen = select(records, grade.get("select", {}))
+            label = grade.get("name", f"{phase} {n}")
+            if not chosen:
+                print(f"  {label}: matched no clips — check its select block")
+                continue
+            print(f"  {label}: {len(chosen)} clip(s)")
 
-        for rec in chosen:
-            item = items[(rec["track"], rec["index"])]
-            where = f"V{rec['track']} #{rec['index']} {rec['name']}"
+            for rec in chosen:
+                item = items[(rec["track"], rec["index"])]
+                where = f"V{rec['track']} #{rec['index']} {rec['name']}"
 
-            if "lut" in grade:
-                node = int(grade.get("lut_node", 1))
-                check_node(rec, node, "load a LUT")
+                # A whole graph in one file. This is the only way to get node
+                # structure onto a clip from a script — the API cannot add nodes.
+                if "drx" in grade:
+                    continue
+
+                for op in node_ops(grade):
+                    node = op["node"]
+
+                    if "lut" in op:
+                        check_node(rec, node, "load a LUT")
+                        if args.dry_run:
+                            print(f"    would set LUT node {node} = {op['lut']}  on {where}")
+                        elif not item.SetLUT(node, op["lut"]):
+                            raise SystemExit(
+                                f"SetLUT failed on {where} (node {node}, {op['lut']}).\n"
+                                "Usually the LUT is not in Resolve's LUT folder, or "
+                                "the path has a typo. make_lut.py --install puts it "
+                                "in the right place.")
+
+                    if "cdl" in op:
+                        check_node(rec, node, "set CDL")
+                        payload = cdl_payload(op["cdl"], node)
+                        if args.dry_run:
+                            print(f"    would set CDL node {node} = {payload}  on {where}")
+                        elif not item.SetCDL(payload):
+                            raise SystemExit(f"SetCDL failed on {where} (node {node})")
+
+                    if "label" in op and not args.dry_run:
+                        # Named nodes are the difference between a graph someone
+                        # else can pick up and five grey boxes.
+                        check_node(rec, node, "label a node")
+                        try:
+                            item.SetNodeLabel(node, op["label"])
+                        except AttributeError:
+                            pass  # older Resolve; the grade itself still landed
+
+                    if "enabled" in op and not args.dry_run:
+                        check_node(rec, node, "enable/disable a node")
+                        try:
+                            item.SetNodeEnabled(node, bool(op["enabled"]))
+                        except AttributeError:
+                            pass
+
+                if "mark" in grade and not args.dry_run:
+                    # A clip colour makes it obvious in the timeline which clips
+                    # the script owns and which a human still has to grade.
+                    item.SetClipColor(grade["mark"])
+
+                count += 1
+
+            if "drx" in grade:
+                targets = [items[(r["track"], r["index"])] for r in chosen]
+                mode = int(grade.get("drx_mode", 0))
                 if args.dry_run:
-                    print(f"  would set LUT node {node} = {grade['lut']}  on {where}")
-                elif not item.SetLUT(node, grade["lut"]):
+                    print(f"    would apply the graph in {grade['drx']} to "
+                          f"{len(targets)} clip(s)")
+                elif not timeline.ApplyGradeFromDRX(grade["drx"], mode, targets):
                     raise SystemExit(
-                        f"SetLUT failed on {where} (node {node}, {grade['lut']}).\n"
-                        "Usually the LUT is not in Resolve's LUT folder, or the "
-                        "path has a typo. make_lut.py --install puts it in the "
-                        "right place.")
+                        f"ApplyGradeFromDRX failed with {grade['drx']}.\n"
+                        "Check the path, and that the .drx was exported from this "
+                        "version of Resolve (right-click a gallery still > "
+                        "Export, or grab one from a graded clip first).")
+        return count
 
-            if "cdl" in grade:
-                node = int(grade["cdl"].get("node", 1))
-                check_node(rec, node, "set CDL")
-                payload = cdl_payload(grade["cdl"])
-                if args.dry_run:
-                    print(f"  would set CDL node {node} = {payload}  on {where}")
-                elif not item.SetCDL(payload):
-                    raise SystemExit(f"SetCDL failed on {where} (node {node})")
-
-            if "mark" in grade and not args.dry_run:
-                # A clip colour makes it obvious in the timeline which clips the
-                # script touched, which matters when a human grades the rest.
-                item.SetClipColor(grade["mark"])
-
-            applied += 1
+    applied = run_phase(spec.get("grades", []), "grade")
 
     for pair in spec.get("match", []):
         sources = select(records, pair["source"])
@@ -200,14 +295,23 @@ def main():
             raise SystemExit(f"match.targets picked no clips: {pair['targets']}")
 
         src = items[(sources[0]["track"], sources[0]["index"])]
+        targets = [t for t in targets if (t["track"], t["index"])
+                   != (sources[0]["track"], sources[0]["index"])]
+        if not targets:
+            print(f"  match: {sources[0]['name']} is its own only target, skipped")
+            continue
         names = ", ".join(t["name"] for t in targets)
         if args.dry_run:
-            print(f"  would copy the grade from {sources[0]['name']} to {names}")
+            print(f"  would copy the whole graph from {sources[0]['name']} to {names}")
             continue
         if not src.CopyGrades([items[(t['track'], t['index'])] for t in targets]):
             raise SystemExit(f"CopyGrades failed from {sources[0]['name']} to {names}")
-        print(f"  copied the grade from {sources[0]['name']} to {names}")
+        print(f"  copied the whole graph from {sources[0]['name']} to {names}")
         applied += len(targets)
+
+    # Trims run last on purpose: a copied graph overwrites whatever was on the
+    # clip, so per-clip corrections have to land after the copy, not before.
+    applied += run_phase(spec.get("trims", []), "trim")
 
     verb = "would be graded" if args.dry_run else "graded"
     print(f"{applied} clip application(s) {verb}.")

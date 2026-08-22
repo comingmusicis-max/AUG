@@ -16,8 +16,11 @@ What exists is narrow but enough:
 | `SetLUT(nodeIndex, path)` | TimelineItem | loads a `.cube` into an **existing** node |
 | `GetLUT(nodeIndex)` | TimelineItem | reads back what is loaded there |
 | `SetCDL(dict)` | TimelineItem | slope / offset / power / saturation on one node |
+| `SetNodeLabel(nodeIndex, str)` | TimelineItem | names a node |
+| `SetNodeEnabled(nodeIndex, bool)` | TimelineItem | bypasses a node |
 | `CopyGrades([items])` | TimelineItem | copies this clip's whole graph onto others |
 | `GetNumNodes()` | TimelineItem | how many nodes the clip has (newer versions only) |
+| `ApplyGradeFromDRX(path, mode, [items])` | Timeline | applies a saved graph from a `.drx` |
 | `SetClipColor(name)` | TimelineItem | the timeline swatch — useful as a "done" marker |
 | `RefreshLUTList()` | Project | after writing a new `.cube`, or `SetLUT` won't find it |
 | `GrabStill()` | Timeline | current frame into the gallery |
@@ -25,8 +28,29 @@ What exists is narrow but enough:
 
 So the working method is: **shape the look as a file, drive the file from
 Python.** A `.cube` for the look, CDL numbers for per-clip trims, `CopyGrades`
-to hold two shots identical. Anything needing a real node graph gets built once
-by hand and saved as a PowerGrade.
+to hold two shots identical.
+
+## Getting a node graph onto every clip anyway
+
+The no-adding-nodes rule is a wall, not a dead end. Two ways past it, and both
+need the empty nodes to exist exactly once:
+
+1. **Build once, copy everywhere.** Add the nodes on one clip by hand (`Alt+S`
+   per node), let a script fill in every node's LUT, CDL, label and bypass, then
+   `CopyGrades` that clip onto the rest — **the copy brings the node structure
+   with it**, so clips that started with one node end up with the full graph.
+   This is what `looks/golden_hour_nodes.json` does.
+2. **`ApplyGradeFromDRX`.** A `.drx` is a saved graph. Export one from a gallery
+   still (right-click > Export), and the API can push it onto any set of clips —
+   no manual step at all on the next job, since the file already holds the nodes.
+
+Windows, qualifiers and curves stay manual whichever route is taken. The honest
+move is to leave a labelled, disabled node in the right place in the chain for
+them, so the human has somewhere obvious to work.
+
+`ApplyGradeFromDRX`'s middle argument is keyframe handling: `0` no keyframes,
+`1` source-timecode aligned, `2` start-frame aligned. `0` is what a static look
+wants.
 
 `SetCDL` wants strings, not numbers:
 

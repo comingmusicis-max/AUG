@@ -92,6 +92,7 @@ Three presets ship here:
 | `clinic_clean` | before/after and anything showing a result. Neutral on purpose |
 | `clinic_warm` | talking-head and B-roll, where flattering is the job |
 | `premium_grey` | openers and logo cards. Too flat for skin |
+| `golden_hour` | backlit sunset: cream sky, warm bloom, haze in the blacks |
 
 Build it:
 
@@ -103,7 +104,42 @@ python scripts/make_lut.py looks/clinic_clean.json --install
 Windows). Without it the `.cube` lands next to the look file, and
 `apply_grade.py` takes the absolute path just as happily.
 
-### 4. Say which clips get what
+### 4. Build the node graph
+
+The API cannot add nodes — no `AddNode`, in any version. It can fill in nodes
+that already exist, and `CopyGrades` carries a whole graph onto other clips,
+**node structure included**. So the graph is built by hand exactly once:
+
+1. On the Color page, pick one clip as the reference.
+2. Press `Alt+S` until it has as many nodes as the graph needs.
+3. Run the script. It loads the LUT, sets every CDL, labels every node, bypasses
+   the ones meant to stay empty, then copies the finished graph to the rest.
+
+`looks/golden_hour_nodes.json` is a working six-node graph:
+
+| node | does | who sets it |
+|---|---|---|
+| `01 BALANCE` | neutral handle for pulling a drifted clip back | human, per clip |
+| `02 EXPOSURE` | level correction before the look | script |
+| `03 LOOK` | the `.cube` — the whole look lives here | script |
+| `04 SKIN` | takes back a little of the saturation the LUT added | script |
+| `05 SKY` | **empty and bypassed on purpose** | human, needs a window |
+| `06 TRIM` | last word before output, shot-to-shot matching | human |
+
+Node 5 is the honest part: windows, qualifiers and curves cannot be scripted at
+all. Leaving a labelled, disabled node in the right place in the chain means the
+human has somewhere obvious to work instead of inserting a node into a graph
+they did not build.
+
+The other way in is `ApplyGradeFromDRX`, which pushes a saved `.drx` graph onto
+clips with no manual step — worth exporting one from the reference clip once the
+graph is right, so the next job skips step 2 entirely:
+
+```json
+{"select": {"all": true}, "drx": "D:/grades/golden_hour.drx", "drx_mode": 0}
+```
+
+### 5. Say which clips get what
 
 `looks/grade.example.json` is the shape. Rules combine with AND:
 
@@ -121,6 +157,11 @@ Windows). Without it the `.cube` lands next to the look file, and
 
 Selectors: `all`, `tracks`, `names`, `name_contains`, `indexes`, `range`.
 
+Three phases run in order, and the order is the point: **`grades`, then `match`,
+then `trims`.** A copied graph overwrites whatever was on the target clip, so
+per-clip corrections belong in `trims` — put them in `grades` and the copy wipes
+them.
+
 `match` is the before/after tool: it copies one clip's entire graph onto the
 others, so the pair cannot drift apart. **Use it on every before/after pair.**
 Two shots graded separately, however carefully, differ — and the difference
@@ -130,7 +171,7 @@ correctness rule in clinic colour work.
 `mark` sets the timeline clip colour, so it is visible at a glance which clips
 the script owns and which a human still has to grade.
 
-### 5. Dry run, then apply
+### 6. Dry run, then apply
 
 ```bash
 python scripts/apply_grade.py grade.json --project JJ --dry-run

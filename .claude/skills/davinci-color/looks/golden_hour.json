@@ -1,0 +1,14 @@
+{
+  "name": "golden_hour",
+  "note": "Backlit sunset over water: cream-peach sky, pale teal sea, warm blooming highlights, haze in the blacks, soft contrast. Built from the rooftop band reference. Skin is protected because the sun is already doing plenty to it.",
+  "temp": 10,
+  "tint": -2,
+  "exposure": 0.05,
+  "contrast": 0.95,
+  "pivot": 0.435,
+  "saturation": 1.05,
+  "skin_protect": 0.65,
+  "lift": [0.018, 0.014, 0.012],
+  "gamma": [1.02, 1.0, 0.99],
+  "gain": [1.02, 1.0, 0.965]
+}
