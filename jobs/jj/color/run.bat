@@ -2,13 +2,57 @@
 setlocal
 title JJ - grade
 
-rem Repo root, from jobs\jj\color\
-set ROOT=%~dp0..\..\..
-set SKILL=%ROOT%\.claude\skills\davinci-color
+rem Find the repo by walking up from this file, rather than assuming it sits
+rem exactly three folders deep. Copying run.bat somewhere on its own is the
+rem obvious thing to do, and it used to fail with a Python path error that said
+rem nothing about the real problem.
+set "DIR=%~dp0"
+:findroot
+if exist "%DIR%.claude\skills\davinci-color\scripts\doctor.py" goto foundroot
+for %%I in ("%DIR%..") do set "PARENT=%%~fI\"
+if "%PARENT%"=="%DIR%" goto noroot
+set "DIR=%PARENT%"
+goto findroot
+
+:noroot
+echo.
+echo   Cannot find the davinci-color scripts.
+echo.
+echo   This file has to sit inside the AUG repo, at:
+echo       AUG\jobs\jj\color\run.bat
+echo   It is currently at:
+echo       %~dp0
+echo.
+echo   Get the whole repo, not just this file:
+echo       git clone -b claude/davinci-color-dyeing-2xrzpe https://github.com/comingmusicis-max/AUG.git
+echo.
+echo   No git? Open the branch on GitHub, Code ^> Download ZIP, unzip it, and
+echo   run AUG\jobs\jj\color\run.bat from inside the unzipped folder.
+echo.
+pause
+exit /b 1
+
+:foundroot
+set "ROOT=%DIR%"
+set "SKILL=%ROOT%.claude\skills\davinci-color"
+set "JOB=%ROOT%jobs\jj\color"
 
 set PY=python
 where py >nul 2>&1
 if %errorlevel%==0 set PY=py -3
+
+rem Python missing is its own failure, and it should not look like a bad path.
+%PY% --version >nul 2>&1
+if %errorlevel% neq 0 (
+  echo.
+  echo   Python did not run. Install Python 3 from python.org and tick
+  echo   "Add python.exe to PATH" during setup, then run this again.
+  echo.
+  pause
+  exit /b 1
+)
+echo Using repo at %ROOT%
+echo.
 
 echo ============================================
 echo  JJ - golden hour grade
@@ -38,7 +82,7 @@ if %errorlevel% neq 0 (
   pause
   exit /b 1
 )
-%PY% "%SKILL%\scripts\make_lut.py" "%~dp0jj_c0001.json" --install
+%PY% "%SKILL%\scripts\make_lut.py" "%JOB%\jj_c0001.json" --install
 if %errorlevel% neq 0 ( pause & exit /b 1 )
 echo.
 
@@ -61,7 +105,7 @@ pause
 echo.
 
 echo [4/5] dry run - nothing is changed yet
-%PY% "%SKILL%\scripts\apply_grade.py" "%~dp0graph.json" --dry-run
+%PY% "%SKILL%\scripts\apply_grade.py" "%JOB%\graph.json" --dry-run
 if %errorlevel% neq 0 ( pause & exit /b 1 )
 echo.
 echo   Read that. If it names the wrong clips, close this and edit
@@ -76,12 +120,12 @@ if errorlevel 2 (
 echo.
 
 echo [5/5] applying...
-%PY% "%SKILL%\scripts\apply_grade.py" "%~dp0graph.json"
+%PY% "%SKILL%\scripts\apply_grade.py" "%JOB%\graph.json"
 if %errorlevel% neq 0 ( pause & exit /b 1 )
 echo.
 
 echo Saving the graph to a .drx so it survives a delete...
-%PY% "%SKILL%\scripts\export_grade.py" --project jj --clip 1 --out "%~dp0." --name jj_golden_hour
+%PY% "%SKILL%\scripts\export_grade.py" --project jj --clip 1 --out "%JOB%" --name jj_golden_hour
 echo.
 
 echo ============================================
