@@ -93,6 +93,9 @@ Three presets ship here:
 | `clinic_warm` | talking-head and B-roll, where flattering is the job |
 | `premium_grey` | openers and logo cards. Too flat for skin |
 | `golden_hour` | backlit sunset: cream sky, warm bloom, haze in the blacks |
+| `stage_indoor` | tungsten rooms: pulls the orange back, adds the contrast the room lacks |
+
+`golden_hour` and `stage_indoor` are built to cut together — same lifted black level, skin landing in the same place, only the white balance differing. A shoot that runs two lighting setups needs that, or the cut between them reads as a mistake.
 
 Build it:
 
@@ -150,6 +153,12 @@ step at all — nodes included. The next job skips step 2 entirely:
 worth more than this script's convenience. Narrow the targets, or pass `--force`
 when replacing really is the intent — after exporting what is there.
 
+It tells its own output apart from a human's by the clip colour `mark` sets:
+copied clips get marked, and a clip wearing that colour is re-graded without
+complaint. That is what keeps re-running after a re-cut possible, which is the
+entire point of the tool — without it the first successful run would lock every
+later one out.
+
 ### 5. Say which clips get what
 
 `looks/grade.example.json` is the shape. Rules combine with AND:
@@ -193,6 +202,18 @@ python scripts/apply_grade.py grade.json --project JJ
 
 It all lands in Resolve's undo stack — Ctrl+Z on the Color page steps a scripted
 grade back — but on a long timeline the dry run is still cheaper than the undo.
+
+## Tests
+
+```bash
+python tests/test_make_lut.py
+python tests/test_apply_grade.py
+```
+
+No Resolve needed — the API is faked. Worth running after touching a script or
+a look, because grading bugs do not throw: a wrong node index or a phase out of
+order just produces a differently-graded timeline, and nobody notices until the
+client does. Every case in there started as a real bug.
 
 ## When a grade will not apply
 

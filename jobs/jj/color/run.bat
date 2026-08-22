@@ -25,7 +25,7 @@ if %errorlevel% neq 0 (
 )
 echo.
 
-echo [2/5] building golden_hour.cube...
+echo [2/5] building the LUTs...
 net session >nul 2>&1
 if %errorlevel% neq 0 (
   echo.
@@ -39,6 +39,8 @@ if %errorlevel% neq 0 (
   exit /b 1
 )
 %PY% "%SKILL%\scripts\make_lut.py" "%SKILL%\looks\golden_hour.json" --install
+if %errorlevel% neq 0 ( pause & exit /b 1 )
+%PY% "%SKILL%\scripts\make_lut.py" "%SKILL%\looks\stage_indoor.json" --install
 if %errorlevel% neq 0 ( pause & exit /b 1 )
 echo.
 
@@ -83,8 +85,10 @@ echo.
 echo ============================================
 echo  Done. Still by hand:
 echo    - node 05 SKY: switch it on, draw a gradient across the sky
-echo    - node 01 BALANCE on the indoor stage shots - one sunset LUT
-echo      cannot cover both lighting setups
+echo    - list the indoor stage clips in the "trims" block of graph.json,
+echo      so they pick up stage_indoor.cube instead of the sunset look
+echo        apply_grade.py jobs\jj\color\graph.json --list
+echo      prints the clip names to paste in
 echo  Ctrl+Z on the Color page steps any of this back.
 echo ============================================
 pause

@@ -1,0 +1,14 @@
+{
+  "name": "stage_indoor",
+  "note": "The indoor stage half of the JJ shoot. Tungsten practicals push skin orange and flatten the image, so this pulls the warmth back and adds the contrast the room does not have. Shares golden_hour's lifted blacks on purpose — the two have to cut together without the black level jumping.",
+  "temp": -8,
+  "tint": 2,
+  "exposure": 0.1,
+  "contrast": 0.97,
+  "pivot": 0.435,
+  "saturation": 1.02,
+  "skin_protect": 0.75,
+  "lift": [0.016, 0.014, 0.014],
+  "gamma": [1.0, 1.0, 1.0],
+  "gain": [1.0, 1.0, 0.985]
+}

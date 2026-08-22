@@ -1,39 +1,148 @@
 {
   "note": "JJ — golden-hour graph. Build six empty nodes on the reference clip (Alt+S five times), run this, and the graph propagates to every clip on V1. The band footage runs two lighting setups — rooftop sunset and the indoor stage — so expect the indoor shots to need node 01 BALANCE pulled back per clip; that goes in trims below.",
-
   "project": "jj",
-
   "grades": [
     {
       "name": "golden hour graph, built on the reference clip",
-      "select": {"tracks": [1], "indexes": [1]},
+      "select": {
+        "tracks": [
+          1
+        ],
+        "indexes": [
+          1
+        ]
+      },
       "mark": "Orange",
       "nodes": [
         {
           "label": "01 BALANCE",
-          "cdl": {"slope": [1.0, 1.0, 1.0], "offset": [0.0, 0.0, 0.0], "power": [1.0, 1.0, 1.0], "saturation": 1.0}
+          "cdl": {
+            "slope": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "offset": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "power": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "saturation": 1.0
+          }
         },
         {
           "label": "02 EXPOSURE",
-          "cdl": {"slope": [1.03, 1.03, 1.03], "offset": [0.0, 0.0, 0.0], "power": [1.0, 1.0, 1.0], "saturation": 1.0}
+          "cdl": {
+            "slope": [
+              1.03,
+              1.03,
+              1.03
+            ],
+            "offset": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "power": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "saturation": 1.0
+          }
         },
-        {"label": "03 LOOK", "lut": "golden_hour.cube"},
+        {
+          "label": "03 LOOK",
+          "lut": "golden_hour.cube"
+        },
         {
           "label": "04 SKIN",
-          "cdl": {"slope": [1.0, 1.0, 1.0], "offset": [0.0, 0.0, 0.0], "power": [1.0, 1.0, 1.0], "saturation": 0.97}
+          "cdl": {
+            "slope": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "offset": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "power": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "saturation": 0.97
+          }
         },
-        {"label": "05 SKY - window, add by hand", "enabled": false},
+        {
+          "label": "05 SKY - window, add by hand",
+          "enabled": false
+        },
         {
           "label": "06 TRIM",
-          "cdl": {"slope": [1.0, 1.0, 1.0], "offset": [0.0, 0.0, 0.0], "power": [1.0, 1.0, 1.0], "saturation": 1.0}
+          "cdl": {
+            "slope": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "offset": [
+              0.0,
+              0.0,
+              0.0
+            ],
+            "power": [
+              1.0,
+              1.0,
+              1.0
+            ],
+            "saturation": 1.0
+          }
         }
       ]
     }
   ],
-
   "match": [
-    {"source": {"tracks": [1], "indexes": [1]}, "targets": {"tracks": [1]}}
+    {
+      "source": {
+        "tracks": [
+          1
+        ],
+        "indexes": [
+          1
+        ]
+      },
+      "targets": {
+        "tracks": [
+          1
+        ]
+      }
+    }
   ],
-
-  "trims": []
+  "trims": [
+    {
+      "name": "indoor stage shots swap the look at node 03",
+      "note": "Fill in `names` (or use `indexes`) with the stage clips — apply_grade.py --list prints them. Until it is filled in this matches nothing and says so, which is the safe way round. Trims run after the copy, so this overrides golden_hour on those clips only, and every other node in the graph stays put.",
+      "select": {
+        "tracks": [
+          1
+        ],
+        "names": []
+      },
+      "nodes": [
+        {
+          "node": 3,
+          "label": "03 LOOK",
+          "lut": "stage_indoor.cube"
+        }
+      ]
+    }
+  ]
 }

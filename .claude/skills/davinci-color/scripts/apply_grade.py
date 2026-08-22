@@ -190,7 +190,12 @@ def main():
             nodes = int(nodes) if nodes else None
         except Exception:
             nodes = None
-        rec = {"track": track, "index": index, "name": item.GetName(), "nodes": nodes}
+        try:
+            colour = item.GetClipColor() or None
+        except Exception:
+            colour = None
+        rec = {"track": track, "index": index, "name": item.GetName(),
+               "nodes": nodes, "color": colour}
         records.append(rec)
         items[(track, index)] = item
 
@@ -290,7 +295,15 @@ def main():
 
     applied = run_phase(spec.get("grades", []), "grade")
 
+    # Clip colours this spec assigns. A target wearing one was graded by this
+    # spec before, so re-running is free to overwrite it.
+    owned_marks = {g["mark"] for g in spec.get("grades", []) if "mark" in g}
+    owned_marks |= {g["mark"] for g in spec.get("trims", []) if "mark" in g}
+
     for pair in spec.get("match", []):
+        unknown = set(pair) - {"source", "targets", "mark", "note"}
+        if unknown:
+            raise SystemExit(f"unknown key(s) in a match entry: {', '.join(sorted(unknown))}")
         sources = select(records, pair["source"])
         targets = select(records, pair["targets"])
         if len(sources) != 1:
@@ -308,18 +321,25 @@ def main():
 
         # CopyGrades replaces the target's graph outright. Someone's hand-built
         # nodes are worth more than this script's convenience, so a copy over
-        # existing work has to be asked for.
-        occupied = [t for t in targets if (t.get("nodes") or 1) > 1]
+        # existing work has to be asked for — but a graph this spec put there on
+        # an earlier run is not someone's work, and blocking on it would break
+        # the whole point of re-running after a re-cut. The clip colour set by
+        # `mark` is what tells the two apart.
+        occupied = [t for t in targets
+                    if (t.get("nodes") or 1) > 1 and t.get("color") not in owned_marks]
         if occupied and not args.force:
             listing = "\n".join(f"    V{t['track']} #{t['index']} {t['name']} "
                                  f"({t['nodes']} nodes)" for t in occupied[:8])
             more = f"\n    ... and {len(occupied) - 8} more" if len(occupied) > 8 else ""
             raise SystemExit(
-                f"{len(occupied)} target clip(s) already carry a node graph, and "
-                f"copying over them would replace it:\n{listing}{more}\n\n"
+                f"{len(occupied)} target clip(s) already carry a node graph this "
+                f"spec did not put there, and copying over them would replace "
+                f"it:\n{listing}{more}\n\n"
                 "Either narrow the match's targets, or pass --force if replacing "
                 "them is the intent. Export what is there first with "
-                "export_grade.py — a .drx puts it back.")
+                "export_grade.py — a .drx puts it back.\n"
+                "(Clips this spec graded before are recognised by the colour its "
+                "`mark` sets, and are re-graded without complaint.)")
 
         names = ", ".join(t["name"] for t in targets)
         if args.dry_run:
@@ -327,6 +347,24 @@ def main():
             continue
         if not src.CopyGrades([items[(t['track'], t['index'])] for t in targets]):
             raise SystemExit(f"CopyGrades failed from {sources[0]['name']} to {names}")
+
+        # The copy is what makes these clips this spec's work, so mark them here
+        # — otherwise the next run sees six nodes with no marker and refuses to
+        # touch its own output.
+        mark = pair.get("mark") or (next(iter(owned_marks)) if len(owned_marks) == 1 else None)
+        for t in targets:
+            target = items[(t["track"], t["index"])]
+            if mark:
+                target.SetClipColor(mark)
+                t["color"] = mark
+            # The copy brings the source's nodes with it. The clip records were
+            # read before that happened, so without this the trims phase still
+            # believes these clips have one node and refuses to touch them.
+            try:
+                t["nodes"] = int(target.GetNumNodes()) or t["nodes"]
+            except Exception:
+                t["nodes"] = sources[0].get("nodes") or t["nodes"]
+
         print(f"  copied the whole graph from {sources[0]['name']} to {names}")
         applied += len(targets)
 
