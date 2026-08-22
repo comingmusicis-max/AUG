@@ -1,0 +1,14 @@
+{
+  "name": "jj_c0001",
+  "note": "C0001 as it actually is: an indoor rehearsal room, not the sunset rooftop the reference image showed. White balance is already close, so this corrects lightly rather than fighting a cast that is not there. Adds the contrast the room lacks, lets the blue curtain and green bass carry the saturation, and protects skin hard because she is the whole frame.",
+  "temp": -3,
+  "tint": 1,
+  "exposure": 0.05,
+  "contrast": 1.06,
+  "pivot": 0.435,
+  "saturation": 1.06,
+  "skin_protect": 0.8,
+  "lift": [0.006, 0.006, 0.010],
+  "gamma": [1.0, 1.0, 1.0],
+  "gain": [1.0, 1.0, 0.995]
+}

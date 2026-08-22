@@ -1,6 +1,8 @@
 # JJ — ย้อมสี
 
-Resolve Studio 21, ชื่อโปรเจกต์ `jj` (ตัวเล็ก)
+Resolve Studio 21, โปรเจกต์ `jj`, Timeline 1
+
+**ไทม์ไลน์มีคลิปเดียว: `C0001.MP4` ยาวคลุมทั้ง 12 นาที** V2 ว่าง เสียงอยู่ A1 จากคลิปเดียวกัน
 
 ## วิธีที่ง่ายที่สุด
 
@@ -14,66 +16,53 @@ Resolve Studio 21, ชื่อโปรเจกต์ `jj` (ตัวเล็
 ## หรือรันทีละคำสั่ง
 
 ```bash
-# 1. เช็กว่าต่อ Resolve ได้
 python .claude/skills/davinci-color/scripts/doctor.py
 
-# 2. สร้าง LUT ลงโฟลเดอร์ LUT ของ Resolve (เปิด terminal แบบ Administrator)
-python .claude/skills/davinci-color/scripts/make_lut.py \
-    .claude/skills/davinci-color/looks/golden_hour.json --install
+python .claude/skills/davinci-color/scripts/make_lut.py jobs/jj/color/jj_c0001.json --install
 
-# 3. ที่หน้า Color เลือกคลิปแรกบน V1 กด Alt+S ห้าครั้ง ให้ได้ 6 โหนด
+# หน้า Color เลือก C0001.MP4 กด Alt+S 5 ครั้ง ให้ได้ 6 โหนด
 
-# 4. ดูก่อนว่าจะเกิดอะไรขึ้น
-python .claude/skills/davinci-color/scripts/apply_grade.py \
-    jobs/jj/color/graph.json --dry-run
-
-# 5. ลงจริง
+python .claude/skills/davinci-color/scripts/apply_grade.py jobs/jj/color/graph.json --dry-run
 python .claude/skills/davinci-color/scripts/apply_grade.py jobs/jj/color/graph.json
 
-# 6. พอกราฟนิ่งแล้ว เก็บเป็นไฟล์ไว้ ไม่ให้หายอีก
 python .claude/skills/davinci-color/scripts/export_grade.py \
     --project jj --clip 1 --out jobs/jj/color --name jj_golden_hour
 ```
 
-ขั้น 3 กดมือครั้งเดียวพอ — `CopyGrades` ลากโครงสร้างโหนดไปให้คลิปที่เหลือเอง
+## ทำไมไม่ใช้ golden_hour.cube
 
-พอมี `.drx` จากขั้น 6 แล้ว รอบหน้าข้ามขั้น 3 ได้เลย ใส่ใน `graph.json` แทน:
+ภาพอ้างอิงที่ส่งมาตอนแรกเป็นดาดฟ้าย้อนแสงตอนพระอาทิตย์ตก แต่ฟุตเทจจริงคือ
+**ห้องซ้อมในร่ม** — คนละเรื่องกัน เอา `golden_hour` มาใส่จะได้:
 
-```json
-{"select": {"all": true}, "drx": "jobs/jj/color/jj_golden_hour.drx"}
-```
+| | ต้นฉบับ | golden_hour | jj_c0001 |
+|---|---|---|---|
+| เสื้อดำ | 0.07 | **0.11** หมอกเทาในห้องปิด | 0.055 |
+| ผ้าม่านน้ำเงิน | 0.13,0.16,0.34 | **0.17**,0.19,0.35 อุ่นขึ้น 30% | 0.12,0.15,0.36 |
 
-## สิ่งที่ต้องทำมือ
+`jj_c0001.json` ทำมาสำหรับคลิปนี้: WB เดิมใกล้ถูกอยู่แล้วเลยแก้เบา ๆ
+เติมคอนทราสต์ที่ห้องไม่มี ปล่อยให้ม่านน้ำเงินกับเบสเขียวเป็นตัวรับแซต
+และกันผิวไว้หนัก (`skin_protect: 0.8`) เพราะเธอคือทั้งเฟรม
 
-| ทำอะไร | ทำไมสคริปต์ทำให้ไม่ได้ |
-|---|---|
-| โหนด `05 SKY` — เปิดแล้ววาด gradient ที่ฟ้า | window/qualifier สั่งผ่าน API ไม่ได้เลย |
-| บอกว่าคลิปไหนคือช็อตในร่ม | ผมดูฟุตเทจไม่ได้ ต้องนายชี้ |
-| โหนด `06 TRIM` ตอนแมตช์ช็อตต่อช็อต | ต้องดูตาเทียบ |
+ถ้ายังอยากได้อารมณ์ golden hour จริง ๆ บอกได้ ผมปรับ `jj_c0001.json` ให้อุ่นขึ้น
+โดยไม่พาหมอกกับ cast ผิด ๆ มาด้วย
 
-ค่าที่ตั้งมือแล้วอยากให้ถาวร เขียนกลับลง `trims` ใน `graph.json` — มันรันหลัง `match` ก็เลยไม่โดนทับ
+## ไม่มี match ไม่มี trims
 
-## สองไฟ สอง look
+สองอย่างนั้นมีไว้กระจายกราฟไปหลายคลิป งานนี้คลิปเดียว ไม่มีอะไรให้กระจาย
+ผมตัดออกจาก `graph.json` แล้ว
 
-งานนี้ถ่ายสองสภาพแสง — ดาดฟ้าตอนพระอาทิตย์ตก กับเวทีในร่มไฟทังสเตน LUT ตัวเดียว
-คุมทั้งคู่ไม่ได้ เลยมีสองตัว:
+`select` ใช้ `name_contains: "C0001"` เลยไม่แคร์นามสกุลหรือตัวพิมพ์เล็กใหญ่
 
-| look | ใช้กับ |
-|---|---|
-| `golden_hour.cube` | ดาดฟ้า ย้อนแสง — เป็นค่าตั้งต้นของทุกคลิป |
-| `stage_indoor.cube` | เวทีในร่ม — ดึงส้มจากไฟทังสเตนคืน เติมคอนทราสต์ที่ห้องไม่มี |
+## กราฟ 6 โหนด
 
-สองตัวนี้ทำมาให้ตัดกันได้: ระดับดำห่างกัน 0.008 ผิวลงที่เดียวกันห่างกัน 0.010
-ต่างกันแค่ white balance — ถ้าไม่คุมตรงนี้ รอยตัดระหว่างสองซีนจะอ่านเป็นความผิดพลาด
-
-**สิ่งที่นายต้องทำ:** ดูว่าคลิปไหนคือช็อตในร่ม แล้วใส่ชื่อลงใน `trims` ของ `graph.json`
-
-```bash
-python .claude/skills/davinci-color/scripts/apply_grade.py jobs/jj/color/graph.json --list
-```
-
-เอาชื่อที่ได้ไปวางใน `"names": []` ตอนนี้มันว่างอยู่ สคริปต์เลยข้ามแล้วบอกว่าข้าม
-ซึ่งปลอดภัยกว่าเดาเอง
+| โหนด | ทำอะไร | ใครตั้ง |
+|---|---|---|
+| `01 BALANCE` | handle เปล่า ๆ WB ห้องนี้ใกล้ถูกแล้ว | คนทำ ถ้าช่วงไหนหลุด |
+| `02 EXPOSURE` | ดันเลเวลก่อนเข้า look | สคริปต์ |
+| `03 LOOK` | `jj_c0001.cube` | สคริปต์ |
+| `04 SKIN` | ดึงแซตคืนที่ผิว | สคริปต์ |
+| `05 WINDOW` | **เปล่าและปิดไว้** — window ที่ตัวนักร้อง หรือ vignette กดวงดนตรี | คนทำ |
+| `06 TRIM` | คำสุดท้าย หลังดูจนจบ | คนทำ |
 
 ## รันซ้ำได้
 
@@ -86,3 +75,6 @@ python .claude/skills/davinci-color/scripts/apply_grade.py jobs/jj/color/graph.j
 กราฟ 14 โหนดชุดเดิม (WB ด้วย Chromatic Adaptation 5721K → 6837K, HI LIGH, EXPOS,
 EFX, SAT, layer mixer) ถูกลบไปแล้ว แต่ still `1.1.1`–`1.1.7` ในแกลเลอรียังเก็บ
 เกรดนั้นไว้ — คลิกขวาที่ still แล้ว Apply Grade ได้ตลอด
+
+หมายเหตุ: โหนด WB เดิมเป็น **OFX (Chromatic Adaptation)** ซึ่ง API แตะพารามิเตอร์
+ไม่ได้เลย ถ้าอยากได้กลับมาต้องตั้งมือ แล้ว `export_grade.py` เก็บเป็น `.drx` ไว้

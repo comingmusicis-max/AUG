@@ -1,21 +1,20 @@
 {
-  "note": "JJ — golden-hour graph. Build six empty nodes on the reference clip (Alt+S five times), run this, and the graph propagates to every clip on V1. The band footage runs two lighting setups — rooftop sunset and the indoor stage — so expect the indoor shots to need node 01 BALANCE pulled back per clip; that goes in trims below.",
+  "note": "JJ — one clip, C0001.MP4, filling the whole 12-minute timeline. No match and no trims: those spread a graph across a timeline, and there is nothing here to spread it to. Build six nodes on C0001 (Alt+S five times), run this, done. Selected by name_contains so extension and letter case do not matter.",
   "project": "jj",
   "grades": [
     {
-      "name": "golden hour graph, built on the reference clip",
+      "name": "golden hour graph on C0001",
       "select": {
         "tracks": [
           1
         ],
-        "indexes": [
-          1
-        ]
+        "name_contains": "C0001"
       },
       "mark": "Orange",
       "nodes": [
         {
           "label": "01 BALANCE",
+          "note": "Neutral to start. The room's white balance is already close, so this stays a handle rather than a correction — turn it only if a section of the take drifts.",
           "cdl": {
             "slope": [
               1.0,
@@ -58,7 +57,8 @@
         },
         {
           "label": "03 LOOK",
-          "lut": "golden_hour.cube"
+          "note": "jj_c0001.cube, built for this footage. golden_hour.cube came from the sunset reference image and does not belong on an interior: it hazes the blacks up from 0.07 to 0.11 and warms the blue curtain by 30%.",
+          "lut": "jj_c0001.cube"
         },
         {
           "label": "04 SKIN",
@@ -82,7 +82,8 @@
           }
         },
         {
-          "label": "05 SKY - window, add by hand",
+          "label": "05 WINDOW - subject, add by hand",
+          "note": "Off deliberately. There is no sky in this shot — the useful window here is a soft one on her, or a vignette pulling the band back. A window cannot be scripted, so the node waits in the right place in the chain.",
           "enabled": false
         },
         {
@@ -105,42 +106,6 @@
             ],
             "saturation": 1.0
           }
-        }
-      ]
-    }
-  ],
-  "match": [
-    {
-      "source": {
-        "tracks": [
-          1
-        ],
-        "indexes": [
-          1
-        ]
-      },
-      "targets": {
-        "tracks": [
-          1
-        ]
-      }
-    }
-  ],
-  "trims": [
-    {
-      "name": "indoor stage shots swap the look at node 03",
-      "note": "Fill in `names` (or use `indexes`) with the stage clips — apply_grade.py --list prints them. Until it is filled in this matches nothing and says so, which is the safe way round. Trims run after the copy, so this overrides golden_hour on those clips only, and every other node in the graph stays put.",
-      "select": {
-        "tracks": [
-          1
-        ],
-        "names": []
-      },
-      "nodes": [
-        {
-          "node": 3,
-          "label": "03 LOOK",
-          "lut": "stage_indoor.cube"
         }
       ]
     }

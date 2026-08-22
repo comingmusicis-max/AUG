@@ -38,9 +38,7 @@ if %errorlevel% neq 0 (
   pause
   exit /b 1
 )
-%PY% "%SKILL%\scripts\make_lut.py" "%SKILL%\looks\golden_hour.json" --install
-if %errorlevel% neq 0 ( pause & exit /b 1 )
-%PY% "%SKILL%\scripts\make_lut.py" "%SKILL%\looks\stage_indoor.json" --install
+%PY% "%SKILL%\scripts\make_lut.py" "%~dp0jj_c0001.json" --install
 if %errorlevel% neq 0 ( pause & exit /b 1 )
 echo.
 
@@ -48,12 +46,12 @@ echo [3/5] the one manual step
 echo.
 echo   In Resolve, on the Color page:
 echo     - open project jj
-echo     - select the FIRST clip on V1
-echo     - press Alt+S five times, so the clip has 6 nodes
+echo     - select C0001.MP4 on V1 (it is the only clip)
+echo     - press Alt+S five times, so it has 6 nodes
 echo.
-echo   The script fills those nodes in and copies the finished graph to
-echo   every other clip. Node 5 stays empty on purpose - that is where the
-echo   sky window goes, and a window cannot be scripted.
+echo   The script fills those six nodes in. Node 5 stays empty on purpose -
+echo   that is where a window on the singer goes, and a window cannot be
+echo   scripted.
 echo.
 pause
 echo.
@@ -84,11 +82,9 @@ echo.
 
 echo ============================================
 echo  Done. Still by hand:
-echo    - node 05 SKY: switch it on, draw a gradient across the sky
-echo    - list the indoor stage clips in the "trims" block of graph.json,
-echo      so they pick up stage_indoor.cube instead of the sunset look
-echo        apply_grade.py jobs\jj\color\graph.json --list
-echo      prints the clip names to paste in
+echo    - node 05 WINDOW: switch it on, put a soft window on the singer
+echo      or a vignette to hold the band back
+echo    - node 06 TRIM: the last word, once you have watched it through
 echo  Ctrl+Z on the Color page steps any of this back.
 echo ============================================
 pause
