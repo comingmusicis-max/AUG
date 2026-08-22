@@ -111,15 +111,21 @@ def node_ops(grade):
     return ops
 
 
-def check_node(rec, node, action):
+def check_node(rec, node, action, needed=None):
     """Refuse a node index the clip does not have, rather than failing silently."""
     nodes = rec.get("nodes")
-    if nodes is not None and node > nodes:
-        raise SystemExit(
-            f"{rec['name']} (V{rec['track']} #{rec['index']}) has {nodes} node(s), "
-            f"but the grade wants to {action} on node {node}.\n"
-            "The API cannot add nodes. Add them on the Color page (or apply a "
-            "PowerGrade with the right graph), then re-run.")
+    if nodes is None or node <= nodes:
+        return
+    target = max(needed or node, node)
+    short = target - nodes
+    raise SystemExit(
+        f"{rec['name']} (V{rec['track']} #{rec['index']}) has {nodes} node(s), "
+        f"but the grade wants to {action} on node {node}.\n"
+        f"It needs {target}, so add {short} more: select the clip on the Color "
+        f"page and press Alt+S {short} time(s). With an empty graph, right-click "
+        f"the node editor > Add Node > Add Serial for the first one.\n"
+        "The API cannot add them — a PowerGrade or a .drx with the right graph "
+        "is the other way in.")
 
 
 def check_file(path, spec_path, kind, hint):
@@ -187,7 +193,10 @@ def main():
     for track, index, item in found:
         try:
             nodes = item.GetNumNodes()
-            nodes = int(nodes) if nodes else None
+            # An empty graph reports 0, and 0 is falsy — reading it as "this
+            # version will not say" let the node check pass on a clip with
+            # nothing to grade.
+            nodes = int(nodes) if nodes is not None else None
         except Exception:
             nodes = None
         try:
@@ -234,11 +243,13 @@ def main():
                 if "drx" in grade:
                     continue
 
-                for op in node_ops(grade):
+                ops = node_ops(grade)
+                needed = max((o["node"] for o in ops), default=1)
+                for op in ops:
                     node = op["node"]
 
                     if "lut" in op:
-                        check_node(rec, node, "load a LUT")
+                        check_node(rec, node, "load a LUT", needed)
                         if args.dry_run:
                             print(f"    would set LUT node {node} = {op['lut']}  on {where}")
                         elif not item.SetLUT(node, op["lut"]):
@@ -249,7 +260,7 @@ def main():
                                 "in the right place.")
 
                     if "cdl" in op:
-                        check_node(rec, node, "set CDL")
+                        check_node(rec, node, "set CDL", needed)
                         payload = cdl_payload(op["cdl"], node)
                         if args.dry_run:
                             print(f"    would set CDL node {node} = {payload}  on {where}")
@@ -259,14 +270,14 @@ def main():
                     if "label" in op and not args.dry_run:
                         # Named nodes are the difference between a graph someone
                         # else can pick up and five grey boxes.
-                        check_node(rec, node, "label a node")
+                        check_node(rec, node, "label a node", needed)
                         try:
                             item.SetNodeLabel(node, op["label"])
                         except AttributeError:
                             pass  # older Resolve; the grade itself still landed
 
                     if "enabled" in op and not args.dry_run:
-                        check_node(rec, node, "enable/disable a node")
+                        check_node(rec, node, "enable/disable a node", needed)
                         try:
                             item.SetNodeEnabled(node, bool(op["enabled"]))
                         except AttributeError:
@@ -361,9 +372,10 @@ def main():
             # read before that happened, so without this the trims phase still
             # believes these clips have one node and refuses to touch them.
             try:
-                t["nodes"] = int(target.GetNumNodes()) or t["nodes"]
+                fresh = target.GetNumNodes()
+                t["nodes"] = int(fresh) if fresh is not None else sources[0].get("nodes")
             except Exception:
-                t["nodes"] = sources[0].get("nodes") or t["nodes"]
+                t["nodes"] = sources[0].get("nodes")
 
         print(f"  copied the whole graph from {sources[0]['name']} to {names}")
         applied += len(targets)

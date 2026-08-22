@@ -47,11 +47,15 @@ echo.
 echo   In Resolve, on the Color page:
 echo     - open project jj
 echo     - select C0001.MP4 on V1 (it is the only clip)
-echo     - press Alt+S five times, so it has 6 nodes
+echo     - add serial nodes until the graph has SIX of them
+echo         Alt+S adds one. If the graph is empty, right-click it first:
+echo         Add Node ^> Add Serial.
 echo.
-echo   The script fills those six nodes in. Node 5 stays empty on purpose -
-echo   that is where a window on the singer goes, and a window cannot be
-echo   scripted.
+echo   Six is the count that matters, not the number of keypresses - the
+echo   clip may start with one node, or with none.
+echo.
+echo   The script fills those six in. Node 5 stays empty on purpose - that is
+echo   where a window on the singer goes, and a window cannot be scripted.
 echo.
 pause
 echo.

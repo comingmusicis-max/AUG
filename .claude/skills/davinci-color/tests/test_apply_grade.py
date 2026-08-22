@@ -175,6 +175,29 @@ def test_rerun_is_not_blocked_by_its_own_output():
     assert any(c[0] == "CopyGrades" for c in log)
 
 
+def test_empty_graph_is_caught():
+    """A clip with every node deleted reports 0, and 0 is falsy — read as
+    "this version will not say", it let the check pass on a clip with nothing
+    to grade."""
+    try:
+        run(graph_spec(), [Item("REF.MP4", nodes=0)])
+    except SystemExit as e:
+        assert "has 0 node(s)" in str(e)
+        assert "add 6 more" in str(e), f"the fix should be countable: {e}"
+    else:
+        raise AssertionError("graded a clip that has no nodes")
+
+
+def test_node_shortfall_is_counted():
+    for have, expect in ((1, "add 5 more"), (4, "add 2 more")):
+        try:
+            run(graph_spec(), [Item("REF.MP4", nodes=have)])
+        except SystemExit as e:
+            assert expect in str(e), f"{have} nodes -> {e}"
+        else:
+            raise AssertionError(f"graded a clip with only {have} nodes")
+
+
 def test_handmade_graph_is_protected():
     items = fresh()
     items[1].nodes, items[1].color = 14, None    # somebody's own work

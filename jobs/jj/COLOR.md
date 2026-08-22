@@ -8,7 +8,7 @@ Resolve Studio 21, โปรเจกต์ `jj`, Timeline 1
 
 คลิกขวาที่ `jobs\jj\color\run.bat` → **Run as administrator**
 
-มันไล่ให้ครบทุกขั้น หยุดรอตอนที่ต้องกด Alt+S เอง แล้วให้ดูผล dry-run ก่อนถามว่า
+มันไล่ให้ครบทุกขั้น หยุดรอตอนที่ต้องเพิ่มโหนดเอง แล้วให้ดูผล dry-run ก่อนถามว่า
 จะลงจริงไหม ถ้าขั้นไหนพัง มันหยุดตรงนั้นพร้อมบอกสาเหตุ ไม่ไปต่อแบบครึ่ง ๆ กลาง ๆ
 
 ต้องเป็น Administrator เพราะโฟลเดอร์ LUT ของ Resolve อยู่ใน ProgramData
@@ -20,7 +20,8 @@ python .claude/skills/davinci-color/scripts/doctor.py
 
 python .claude/skills/davinci-color/scripts/make_lut.py jobs/jj/color/jj_c0001.json --install
 
-# หน้า Color เลือก C0001.MP4 กด Alt+S 5 ครั้ง ให้ได้ 6 โหนด
+# หน้า Color เลือก C0001.MP4 แล้วเพิ่มโหนดจนมี 6 โหนด (Alt+S ทีละอัน)
+# ถ้ากราฟว่าง คลิกขวาที่ node editor > Add Node > Add Serial ก่อน
 
 python .claude/skills/davinci-color/scripts/apply_grade.py jobs/jj/color/graph.json --dry-run
 python .claude/skills/davinci-color/scripts/apply_grade.py jobs/jj/color/graph.json
