@@ -1,0 +1,14 @@
+{
+  "name": "premium_grey",
+  "note": "Cool, low-saturation, lifted blacks — the flat premium look for openers and logo cards. Too desaturated for skin close-ups.",
+  "temp": -14,
+  "tint": 0,
+  "exposure": 0.0,
+  "contrast": 0.94,
+  "pivot": 0.435,
+  "saturation": 0.86,
+  "skin_protect": 0.5,
+  "lift": [0.012, 0.014, 0.02],
+  "gamma": [1.0, 1.0, 1.02],
+  "gain": [0.99, 0.995, 1.0]
+}

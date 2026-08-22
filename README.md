@@ -3,6 +3,7 @@
 โครงสร้าง:
 
 - `.claude/skills/capcut-edit-builder/` — สกิลสร้าง CapCut draft จาก brief (ต้องรันบน Windows ที่มี CapCut)
+- `.claude/skills/davinci-color/` — สกิลย้อมสีบน DaVinci Resolve ผ่าน Python API (เขียน look เป็นตัวเลข → สร้าง .cube → ยิงเข้าคลิปที่ตรงเงื่อนไข)
 - `jobs/<งาน>/plan/media.json` — รายการไฟล์ที่ต้องโหลด
 - `jobs/<งาน>/plan/edit_plan.json` — แผนไทม์ไลน์
 - `jobs/<งาน>/SCRIPT.md` — สรุปไทม์ไลน์ + สิ่งที่ต้องทำมือ

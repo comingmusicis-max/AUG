@@ -1,0 +1,14 @@
+{
+  "name": "clinic_warm",
+  "note": "Warmer, softer skin for talking-head and B-roll. Not for before/after pairs — the warmth reads as a result the treatment did not produce.",
+  "temp": 12,
+  "tint": -2,
+  "exposure": 0.15,
+  "contrast": 1.04,
+  "pivot": 0.435,
+  "saturation": 1.08,
+  "skin_protect": 0.6,
+  "lift": [0.008, 0.004, 0.0],
+  "gamma": [1.02, 1.0, 0.99],
+  "gain": [1.0, 1.0, 0.985]
+}

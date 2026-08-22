@@ -1,0 +1,29 @@
+{
+  "timeline": "MAIN",
+  "grades": [
+    {
+      "name": "everything gets the base look",
+      "select": {"all": true},
+      "lut": "clinic_clean.cube",
+      "lut_node": 1,
+      "mark": "Orange"
+    },
+    {
+      "name": "stills sit a touch brighter than the footage",
+      "select": {"tracks": [1], "name_contains": "DSC"},
+      "cdl": {"node": 1, "slope": [1.02, 1.02, 1.02], "offset": [0.004, 0.004, 0.004], "power": [1, 1, 1], "saturation": 1.0}
+    },
+    {
+      "name": "opener card, flat and cool",
+      "select": {"tracks": [2], "name_contains": "LOGO"},
+      "lut": "premium_grey.cube",
+      "lut_node": 1
+    }
+  ],
+  "match": [
+    {
+      "source": {"names": ["BEFORE.JPG"]},
+      "targets": {"names": ["AFTER.JPG"]}
+    }
+  ]
+}

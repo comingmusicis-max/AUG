@@ -1,0 +1,14 @@
+{
+  "name": "clinic_clean",
+  "note": "Neutral clinic look: skin stays honest, whites stay white. The default for before/after, where any tint of its own is a lie about the result.",
+  "temp": -3,
+  "tint": 1,
+  "exposure": 0.1,
+  "contrast": 1.06,
+  "pivot": 0.435,
+  "saturation": 1.04,
+  "skin_protect": 0.8,
+  "lift": [0.0, 0.0, 0.004],
+  "gamma": [1.0, 1.0, 1.0],
+  "gain": [1.0, 1.0, 0.995]
+}
