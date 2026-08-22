@@ -131,13 +131,24 @@ all. Leaving a labelled, disabled node in the right place in the chain means the
 human has somewhere obvious to work instead of inserting a node into a graph
 they did not build.
 
-The other way in is `ApplyGradeFromDRX`, which pushes a saved `.drx` graph onto
-clips with no manual step — worth exporting one from the reference clip once the
-graph is right, so the next job skips step 2 entirely:
+Once the graph is right, save it — a graph that exists only inside a project is
+one accidental delete away from gone, and cannot be reused next month:
+
+```bash
+python scripts/export_grade.py --project jj --clip 1 --out D:/grades
+```
+
+That writes a `.drx`, which `ApplyGradeFromDRX` pushes onto clips with no manual
+step at all — nodes included. The next job skips step 2 entirely:
 
 ```json
 {"select": {"all": true}, "drx": "D:/grades/golden_hour.drx", "drx_mode": 0}
 ```
+
+**`match` refuses to copy over clips that already carry a graph**, because
+`CopyGrades` replaces the target outright and somebody's hand-built nodes are
+worth more than this script's convenience. Narrow the targets, or pass `--force`
+when replacing really is the intent — after exporting what is there.
 
 ### 5. Say which clips get what
 
@@ -191,3 +202,7 @@ grade back — but on a long timeline the dry run is still cheaper than the undo
   the graph once on the Color page, or apply a PowerGrade that has it, then re-run.
 - **The look is right but everything is wrong on screen** — check colour
   management (step 2). A Rec.709 LUT inside an RCM timeline is the usual cause.
+- **"target clip(s) already carry a node graph"** — the guard above. Export them
+  first with `export_grade.py`, then `--force` if the replacement is wanted.
+- **An OFX node will not budge** — Chromatic Adaptation, Face Refinement and the
+  rest take no parameters from the API at any node index. They stay manual.

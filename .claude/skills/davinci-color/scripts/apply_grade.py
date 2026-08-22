@@ -166,14 +166,19 @@ def main():
                     help="print the timeline's clips and exit, changing nothing")
     ap.add_argument("--dry-run", action="store_true",
                     help="say what would be applied to which clip, change nothing")
+    ap.add_argument("--force", action="store_true",
+                    help="allow a match to copy over clips that already have a graph")
     args = ap.parse_args()
 
     if not args.spec and not args.list:
         ap.error("give a grade file, or --list to see what is on the timeline")
 
-    resolve = get_resolve()
-    project = get_project(resolve, args.project)
+    # Read the grade file before touching Resolve: a typo in the JSON should
+    # fail immediately, not after loading a project.
     spec = load_spec(args.spec) if args.spec else {}
+
+    resolve = get_resolve()
+    project = get_project(resolve, args.project or spec.get("project"))
     timeline = get_timeline(project, args.timeline or spec.get("timeline"))
 
     found = video_items(timeline)
@@ -300,6 +305,22 @@ def main():
         if not targets:
             print(f"  match: {sources[0]['name']} is its own only target, skipped")
             continue
+
+        # CopyGrades replaces the target's graph outright. Someone's hand-built
+        # nodes are worth more than this script's convenience, so a copy over
+        # existing work has to be asked for.
+        occupied = [t for t in targets if (t.get("nodes") or 1) > 1]
+        if occupied and not args.force:
+            listing = "\n".join(f"    V{t['track']} #{t['index']} {t['name']} "
+                                 f"({t['nodes']} nodes)" for t in occupied[:8])
+            more = f"\n    ... and {len(occupied) - 8} more" if len(occupied) > 8 else ""
+            raise SystemExit(
+                f"{len(occupied)} target clip(s) already carry a node graph, and "
+                f"copying over them would replace it:\n{listing}{more}\n\n"
+                "Either narrow the match's targets, or pass --force if replacing "
+                "them is the intent. Export what is there first with "
+                "export_grade.py — a .drx puts it back.")
+
         names = ", ".join(t["name"] for t in targets)
         if args.dry_run:
             print(f"  would copy the whole graph from {sources[0]['name']} to {names}")

@@ -14,3 +14,9 @@
 |---|---|---|---|
 | `jobs/wclinic-thread-lift-05-08-69/` | CASE 1 — ร้อยไหม V-Lift (แคมเปญวันแม่) | 5 | 12 |
 | `jobs/wclinic-hifu-05-08-69/` | CASE 2 — ยกกระชับ HIFU | 3 | 10 |
+
+งานสี:
+
+| งาน | โปรแกรม | ไฟล์ |
+|---|---|---|
+| `jobs/jj/` | DaVinci Resolve Studio 21 (โปรเจกต์ `jj`) | `color/graph.json`, `COLOR.md` |
