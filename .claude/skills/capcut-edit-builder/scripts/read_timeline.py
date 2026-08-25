@@ -60,11 +60,64 @@ def describe(draft: dict):
     return rows
 
 
+def rgb_to_hex(c) -> str:
+    try:
+        r, g, b = (int(round(float(v) * 255)) for v in c[:3])
+    except (TypeError, ValueError):
+        return "?"
+    return f"#{r:02x}{g:02x}{b:02x}"
+
+
+def text_styles(draft: dict):
+    """The exact colours, font and size behind every text material.
+
+    Matching a client's hand-made caption beats picking colours off a
+    screenshot: this reads the real values out of the draft so they can be
+    copied straight into a karaoke style file.
+    """
+    out = []
+    for m in draft["materials"].get("texts") or []:
+        try:
+            content = json.loads(m.get("content") or "{}")
+        except ValueError:
+            continue
+        body = content.get("text", "")
+        if not body.strip():
+            continue
+        ranges = []
+        for st in content.get("styles") or []:
+            fill = (((st.get("fill") or {}).get("content") or {})
+                    .get("solid") or {}).get("color")
+            strokes = st.get("strokes") or [{}]
+            stroke = (((strokes[0].get("content") or {})
+                       .get("solid") or {}).get("color"))
+            ranges.append({
+                "range": st.get("range"),
+                "text": body[st["range"][0]:st["range"][1]] if st.get("range") else body,
+                "color": rgb_to_hex(fill) if fill else "?",
+                "size": st.get("size"),
+                "stroke": rgb_to_hex(stroke) if stroke else None,
+                "stroke_width": strokes[0].get("width"),
+            })
+        out.append({
+            "text": body,
+            "font": m.get("font_path") or "",
+            "font_size": m.get("font_size"),
+            "text_color": m.get("text_color"),
+            "border_color": m.get("border_color"),
+            "border_width": m.get("border_width"),
+            "ranges": ranges,
+        })
+    return out
+
+
 def main() -> int:
     ap = argparse.ArgumentParser()
     ap.add_argument("project")
     ap.add_argument("--draft-root", default=DEFAULT_DRAFT_ROOT)
     ap.add_argument("--clips", help="write an audible-clip manifest here")
+    ap.add_argument("--styles", action="store_true",
+                    help="print the exact colours behind every text material")
     args = ap.parse_args()
 
     draft = load(args.draft_root, args.project)
@@ -94,6 +147,25 @@ def main() -> int:
     for r in audible:
         print(f"  {r['name']:16} at {r['start']:6.2f}s  "
               f"src {r['src']:.2f}  len {r['dur']:.2f}")
+
+    if args.styles:
+        styles = text_styles(draft)
+        print(f"\n-- text styles: {len(styles)} --")
+        for t in styles:
+            label = t["text"].replace("\n", " / ")[:44]
+            print(f'\n  "{label}"')
+            print(f"    font  {os.path.basename(t['font']) or '(default)'}"
+                  f"   size {t['font_size']}")
+            print(f"    fill  {t['text_color']}   stroke {t['border_color']}"
+                  f" @ {t['border_width']}")
+            # A hand-made highlight shows up here as ranges of differing colour,
+            # which is exactly the pair a karaoke style file needs.
+            distinct = {r["color"] for r in t["ranges"]}
+            if len(distinct) > 1:
+                for r in t["ranges"]:
+                    print(f"      [{r['range'][0]:>3}:{r['range'][1]:<3}] "
+                          f"{r['color']}  size {r['size']}  "
+                          f"stroke {r['stroke']}  {r['text'][:18]!r}")
 
     if args.clips:
         manifest = [{"path": r["ref"], "timeline": round(r["start"], 3),

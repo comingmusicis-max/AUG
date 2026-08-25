@@ -213,8 +213,22 @@ Nothing here edits a source project; every script writes a new draft folder. A
 client's edit is hours of work with no undo.
 
 Before choosing colours, look for subtitles they made by hand. One styled line
-says exactly what they want, and matching it beats any default. `STYLE` at the
-top of `make_karaoke.py` holds colour, size and position.
+says exactly what they want, and matching it beats any default — and beats
+reading colours off a screenshot they sent, which is never quite the same hex:
+
+```bash
+python scripts/read_timeline.py <project> --styles
+```
+
+That prints the fill, stroke, size and font behind every text material in the
+draft, and breaks out the ranges wherever a line carries more than one colour —
+which is exactly the idle/active pair a highlight needs.
+
+`STYLE` at the top of `make_karaoke.py` holds the defaults, but they are one
+client's look. Put a job's own colours in `plan/karaoke_style.json` and pass
+`--style` instead of editing the script, so a new client's palette does not
+follow every other job in the repo. An unknown key is refused rather than
+ignored, since a typo would otherwise show up as "the colours did not change".
 
 ### Getting the timings
 
@@ -253,7 +267,11 @@ sentence on screen that nobody said.
 without it two speakers get subtitled at the same instant.
 
 Thai syllable splitting needs `pip install pythainlp python-crfsuite`. Without it
-the scripts degrade to whole-word highlighting rather than failing.
+the scripts degrade to whole-word highlighting rather than failing — and with
+`--from-track`, where each caption arrives as a single "word", that degrades all
+the way to one highlight per line, which is not the effect at all. If the run
+reports about as many syllable segments as it does lines, that is the missing
+package, not the timings.
 
 ### Two Whisper details that cost hours to rediscover
 

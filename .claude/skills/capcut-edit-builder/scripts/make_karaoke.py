@@ -34,6 +34,9 @@ from build_draft import (  # noqa: E402
 
 # Defaults lifted from the editor's own hand-made subtitles, so generated lines
 # sit in the same place and read the same as the ones already on the timeline.
+# These are one client's look, not a house style — pass --style <job>.json to
+# override any of these keys per job, which is what stops a new client's colours
+# from being pushed onto every other job in the repo.
 STYLE = {
     "font": "C:/Users/mueth/AppData/Local/Microsoft/Windows/Fonts/"
             "DB Heavent Blk Cond v3.2.1.ttf",
@@ -193,9 +196,22 @@ def main() -> int:
     ap.add_argument("--words")
     ap.add_argument("--from-track", type=int)
     ap.add_argument("--track-name", default="")
+    ap.add_argument("--style", help="JSON file overriding any STYLE key")
     ap.add_argument("--draft-root", default=DEFAULT_DRAFT_ROOT)
     ap.add_argument("--force", action="store_true")
     args = ap.parse_args()
+
+    if args.style:
+        with open(args.style, encoding="utf-8") as f:
+            override = json.load(f)
+        unknown = set(override) - set(STYLE)
+        if unknown:
+            # A typo'd key would silently do nothing and the colours would come
+            # out as the defaults, which is a confusing thing to debug in CapCut.
+            raise SystemExit(f"unknown style keys: {', '.join(sorted(unknown))}\n"
+                             f"known keys: {', '.join(sorted(STYLE))}")
+        STYLE.update(override)
+        print(f"style: {args.style}")
 
     if capcut_running():
         raise SystemExit("CapCut is running — close it so it cannot overwrite "

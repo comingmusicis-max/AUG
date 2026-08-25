@@ -42,6 +42,52 @@
 - [ ] เพลง ทรานซิชัน จังหวะตัด ตำแหน่งข้อความละเอียด
 - [ ] รูปซีน 7 (ข้อ 1) และเคสไหมน้ำใต้ตา (ข้อ 2)
 
+## ซับคาราโอเกะ (ไฮไลต์ทีละคำ) — ซีน 3 กับ ซีน 5
+
+สองประโยคที่สั่งมา:
+
+| ซีน | VO | ประโยค |
+|---|---|---|
+| 3 | `C2236.MP4` | เมื่อกรอบหน้าเริ่มไม่ชัด ใบหน้าก็อาจดูขาดมิติ |
+| 5 | `C2239.MP4` | หลังทำเสร็จหน้าดูยกขึ้นเลยในทันที คุณหมอมือเบามาก ทำให้แทบไม่มีอาการบวมช้ำเลยค่ะ! |
+
+สีอยู่ใน `plan/karaoke_style.json` — ขาวตัดขอบน้ำตาลเข้ม คำที่กำลังพูดเป็นสีทอง
+ขนาดตัวเท่ากันทั้งคำที่ไฮไลต์และไม่ไฮไลต์ (ตามภาพตัวอย่างที่ส่งมา ไม่ได้ขยายตัว)
+
+```bat
+set S=.claude\skills\capcut-edit-builder\scripts
+set J=jobs\theface-13-07-69\plan
+
+python %S%\read_timeline.py theface-13-07-69 --clips %J%\clips.json
+:: เปิด clips.json แล้วลบให้เหลือแค่ C2236.MP4 กับ C2239.MP4
+python %S%\transcribe_audio.py %J%\clips.json %J%\transcript.json
+:: อ่าน transcript.json ก่อน — คำที่ Whisper ฟังผิดให้ใส่ใน fixes.json
+python %S%\prepare_subtitles.py %J%\transcript.json %J%\syllables.json --fixes %J%\fixes.json
+python %S%\make_karaoke.py theface-13-07-69 theface-13-07-69-kara ^
+    --words %J%\syllables.json --style %J%\karaoke_style.json --track-name "ซับคาราโอเกะ"
+```
+
+ต้องมี `pip install pythainlp python-crfsuite` ก่อน **ไม่งั้นมันจะไฮไลต์ทีละทั้งบรรทัดแทนที่จะเป็นทีละคำ**
+(เช็กแล้วว่า pythainlp ตัด `เมื่อกรอบหน้าเริ่มไม่ชัด` เป็น เมื่อ · กรอบ · หน้า · เริ่ม · ไม่ · ชัด ถูกต้อง)
+
+`make_karaoke.py` **ไม่แตะโปรเจกต์เดิม** — มันเขียนโปรเจกต์ใหม่ชื่อ `theface-13-07-69-kara` เสมอ
+
+### ถ้าสีที่ได้ไม่ตรงกับภาพตัวอย่าง
+
+ค่าสีในไฟล์ตอนนี้ผมเทียบเอาจากภาพที่ส่งมา ไม่ได้ดูดจากไฟล์จริง ถ้าตัวหนังสือในภาพนั้น
+คุณทำไว้ใน CapCut อยู่แล้ว ดึงเลขจริงออกมาได้เลย:
+
+```bat
+python %S%\read_timeline.py <ชื่อโปรเจกต์ที่มีตัวหนังสือนั้น> --styles
+```
+
+มันจะพิมพ์ `fill` / `stroke` / `size` ของทุกก้อนข้อความออกมาเป็นเลข hex เอาไปแทนใน
+`karaoke_style.json` ได้ตรง ๆ (คีย์ที่ใส่ได้: `active_color` `idle_color` `active_size`
+`idle_size` `stroke` `stroke_width` `font` `scale` `y` — พิมพ์คีย์ผิดสคริปต์จะฟ้อง ไม่เงียบ)
+
+**ฟอนต์ยังเป็นของงานเก่า** (`DB Heavent Blk Cond`) ถ้างานนี้ใช้ฟอนต์อื่น ใส่ `font`
+เป็น path เต็มลงใน `karaoke_style.json` ด้วย
+
 ## วิธีรัน (บนเครื่อง Windows ที่มี CapCut)
 
 ```bat
