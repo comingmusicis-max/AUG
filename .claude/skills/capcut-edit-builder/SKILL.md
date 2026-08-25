@@ -74,7 +74,33 @@ The fetcher probes every file with ffprobe and writes `media_report.json`
 you catch a trim point that runs past the end of a clip — better to find that now
 than to hand over a project with a blank gap in it.
 
-### 3. Write the edit plan
+### 3. Match the colour across the job
+
+One shoot still drifts — the treatment room is warmer than the counter, auto
+exposure rides up when a face fills the frame, the stills come off a different
+body than the clips. Cut together, every scene change reads as a colour change,
+and clinic clients notice it immediately because the same face changes shade.
+
+```bash
+python scripts/match_grade.py D:/ClinicVideo/<job-name> --preview
+python scripts/match_grade.py D:/ClinicVideo/<job-name> --write
+```
+
+The first run only measures: it prints each file's luma and Cb/Cr average, picks
+one common white and one common brightness, and writes `grade_report.json` plus
+before/after stills in `grade_preview/`. The second run renders corrected copies
+into `graded/`, which is what the edit plan's `media_dir` should point at.
+
+**Look at the report before rendering.** The measurement is grey-world, so a clip
+holding a red logo or a green scrub top reads as a colour cast that is not there;
+the script flags any file it is moving more than 6 points. When one clip already
+looks right, `--ref C2451.MP4` pins the whole job to it, which beats the median.
+
+`SOFT` at the top of the script holds the look itself — target brightness, how
+warm the white sits, how far the blacks lift. The defaults aim at the soft creamy
+white beauty briefs ask for; that is taste, so tune and re-run `--preview`.
+
+### 4. Write the edit plan
 
 Save as `plan/edit_plan.json`:
 
@@ -127,7 +153,7 @@ scenes that are all stills and carry a voice — a scene with footage in it sets
 its own length and is left alone. Re-run it after any re-cut of the voiceover;
 it is idempotent.
 
-### 4. Build
+### 5. Build
 
 ```bash
 python scripts/build_draft.py plan/edit_plan.json
@@ -157,7 +183,7 @@ one `doctor.py` names via `--draft-root`. CapCut has moved this folder between
 versions and lets the user relocate it in Settings, so the hardcoded default is
 a starting guess, not a fact.
 
-### 5. Hand it over
+### 6. Hand it over
 
 Write `SCRIPT.md` into the media folder — timeline table plus, importantly, a
 checklist of what still needs doing by hand. **Say plainly that opening CapCut is

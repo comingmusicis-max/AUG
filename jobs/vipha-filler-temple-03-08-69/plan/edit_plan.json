@@ -1,0 +1,107 @@
+{
+  "project": "vipha-filler-temple-03-08-69",
+  "media_dir": "D:/ClinicVideo/vipha-filler-temple-03-08-69/graded",
+  "canvas": {"width": 1080, "height": 1920},
+  "fps": 30,
+  "scenes": [
+    {
+      "name": "1. วิดีโอก่อนทำ (ขมับตอบ)",
+      "clips": [
+        {"file": "C2451.MP4", "in": 0, "out": 7, "mute": true}
+      ],
+      "voice": [
+        {"file": "C2454.MP4"}
+      ],
+      "text": [
+        {"content": "ขมับตอบแก้ได้!"}
+      ]
+    },
+    {
+      "name": "2. เปิดประตูคลินิกเข้าไป",
+      "clips": [
+        {"file": "C2470.MP4", "mute": true}
+      ],
+      "voice": [
+        {"file": "C2455.MP4"}
+      ],
+      "text": [
+        {"content": "มาที่ Vipha Clinic"}
+      ]
+    },
+    {
+      "name": "3. ถือ Filler",
+      "clips": [
+        {"file": "C2444.MP4", "mute": true}
+      ],
+      "voice": [
+        {"file": "C2457.MP4"}
+      ],
+      "text": [
+        {"content": "โปรแกรม Filler ขมับ"}
+      ]
+    },
+    {
+      "name": "4. อินฟลูเล่นกับกล้อง",
+      "clips": [
+        {"file": "C2441.MP4", "mute": true}
+      ],
+      "voice": [
+        {"file": "C2460.MP4"}
+      ],
+      "text": [
+        {"content": "รอดูผลลัพธ์กัน!"}
+      ]
+    },
+    {
+      "name": "5. ระหว่างทำหัตถการ (ต้องเบลอเข็ม)",
+      "clips": [
+        {"file": "C2467.MP4", "mute": true},
+        {"file": "C2468.MP4", "mute": true},
+        {"file": "C2469.MP4", "mute": true}
+      ],
+      "voice": [
+        {"file": "C2461.MP4"}
+      ],
+      "text": [
+        {"content": "เจ็บนิดเดียวเท่านั้น"}
+      ]
+    },
+    {
+      "name": "6. เปรียบเทียบ ก่อนทำ / หลังทำ",
+      "clips": [
+        {"file": "DSC05003.JPG", "still": 2.5},
+        {"file": "DSC05020.JPG", "still": 2.5}
+      ],
+      "voice": [
+        {"file": "C2462.MP4"}
+      ],
+      "text": [
+        {"content": "ก่อนทำ\n03/08/26", "at": 0, "dur": 2.5},
+        {"content": "หลังทำ\n03/08/26", "at": 2.5, "dur": 2.5},
+        {"content": "*รูปที่ใช้รีวิวได้รับการขออนุญาตเรียบร้อยแล้ว\n*ผลการรักษาสำหรับผู้ป่วยเฉพาะราย", "y": 0.42, "size": 0.6}
+      ]
+    },
+    {
+      "name": "7. วิดีโอหลังทำ (ยังรอไฟล์ — ดู SCRIPT.md ข้อ 2)",
+      "clips": [
+        {"file": "C2451.MP4", "in": 0, "out": 7, "mute": true}
+      ],
+      "voice": [
+        {"file": "C2464.MP4", "in": 0, "out": 2},
+        {"file": "C2465.MP4"}
+      ],
+      "text": [
+        {"content": "หน้าสมส่วนขึ้น\nอยู่ได้นาน ไม่ต้องทำบ่อยๆ"}
+      ]
+    },
+    {
+      "name": "8. อินฟลูพูดกับกล้อง (ปิดท้าย + ราคา)",
+      "clips": [
+        {"file": "C2466.MP4"}
+      ],
+      "text": [
+        {"content": "โปรแกรม Filler\n1 CC แค่ 2,999.-"}
+      ]
+    }
+  ]
+}

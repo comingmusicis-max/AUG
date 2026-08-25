@@ -1,0 +1,84 @@
+{
+  "project": "wrinkle-jaw-03-08-69",
+  "media_dir": "D:/ClinicVideo/wrinkle-jaw-03-08-69/graded",
+  "canvas": {"width": 1080, "height": 1920},
+  "fps": 30,
+  "scenes": [
+    {
+      "name": "1. เปิดเรื่อง — ริ้วรอย / กราม",
+      "clips": [
+        {"file": "C0922.MP4", "mute": true},
+        {"file": "DSC05551.JPG", "still": 1.5},
+        {"file": "DSC05560.JPG", "still": 1.5}
+      ],
+      "voice": [
+        {"file": "C0943.MP4"}
+      ]
+    },
+    {
+      "name": "2. ภาพนิ่งชุดปัญหา",
+      "clips": [
+        {"file": "DSC05550.JPG", "still": 1.5},
+        {"file": "DSC05552.JPG", "still": 1.5},
+        {"file": "DSC05546.JPG", "still": 1.5},
+        {"file": "DSC05560.JPG", "still": 1.5}
+      ],
+      "voice": [
+        {"file": "C0944.MP4"}
+      ]
+    },
+    {
+      "name": "3. คุณหมอประเมิน / ระหว่างทำ",
+      "clips": [
+        {"file": "C0926.MP4", "mute": true},
+        {"file": "C0958.MP4", "mute": true},
+        {"file": "C0960.MP4", "mute": true}
+      ],
+      "voice": [
+        {"file": "C0947.MP4"}
+      ]
+    },
+    {
+      "name": "4. ระหว่างทำ + ภาพนิ่ง",
+      "clips": [
+        {"file": "C0959.MP4", "mute": true},
+        {"file": "C0927.MP4", "mute": true},
+        {"file": "DSC05567.JPG", "still": 1.5},
+        {"file": "DSC05575.JPG", "still": 1.5},
+        {"file": "DSC05585.JPG", "still": 1.5}
+      ],
+      "voice": [
+        {"file": "C0949.MP4"}
+      ]
+    },
+    {
+      "name": "5. ต่อเนื่อง",
+      "clips": [
+        {"file": "C0957.MP4", "mute": true}
+      ],
+      "voice": [
+        {"file": "C0950.MP4"}
+      ]
+    },
+    {
+      "name": "6. เปรียบเทียบ ก่อนทำ / หลังทำ (รอรูปหลังทำ — ดู SCRIPT.md ข้อ 1)",
+      "clips": [
+        {"file": "DSC05549.JPG", "still": 2.0},
+        {"file": "DSC05543.JPG", "still": 2.0}
+      ],
+      "text": [
+        {"content": "ก่อนทำ\n20/7/26", "at": 0, "dur": 4.0}
+      ]
+    },
+    {
+      "name": "7. ปิดท้าย",
+      "clips": [
+        {"file": "C0924.MP4", "mute": true}
+      ],
+      "voice": [
+        {"file": "C0951.MP4"},
+        {"file": "C0952.MP4"}
+      ]
+    }
+  ]
+}
