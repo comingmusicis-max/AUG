@@ -43,6 +43,8 @@ set S=.claude\skills\capcut-edit-builder\scripts
 set J=jobs\wclinic-hifu-05-08-69\plan
 
 python %S%\fetch_media.py %J%\media.json
+python %S%\match_grade.py D:\ClinicVideo\wclinic-hifu-05-08-69 --preview
+python %S%\match_grade.py D:\ClinicVideo\wclinic-hifu-05-08-69 --write
 python %S%\fit_stills.py %J%\edit_plan.json --write
 python %S%\build_draft.py %J%\edit_plan.json
 ```
@@ -50,6 +52,9 @@ python %S%\build_draft.py %J%\edit_plan.json
 `fit_stills.py` คือขั้นที่เมื่อก่อนต้องแก้มือ — มันอ่านความยาวจริงของ `C1116.MP4`
 จาก `media_report.json` แล้วหารลง `still` ของสามรูปในซีน 2 ให้เอง ภาพจะจบพร้อมเสียงพอดี
 (ตัดคำว่า `--write` ออกถ้าอยากดูตัวเลขก่อนว่าจะเปลี่ยนเป็นเท่าไหร่)
+
+`edit_plan.json` ชี้ `media_dir` ไปที่โฟลเดอร์ `graded` แล้ว — ถ้าไม่อยากเกรดสี
+ตัดคำว่า `/graded` ออกจากบรรทัด `media_dir` แล้วข้ามสองคำสั่ง `match_grade` ไป
 
 ปิด CapCut ก่อนรัน `build_draft.py` (สคริปต์จะไม่ยอมรันถ้า CapCut เปิดอยู่)
 

@@ -47,10 +47,15 @@ set S=.claude\skills\capcut-edit-builder\scripts
 set J=jobs\wclinic-thread-lift-05-08-69\plan
 
 python %S%\fetch_media.py %J%\media.json
+python %S%\match_grade.py D:\ClinicVideo\wclinic-thread-lift-05-08-69 --preview
+python %S%\match_grade.py D:\ClinicVideo\wclinic-thread-lift-05-08-69 --write
 python %S%\build_draft.py %J%\edit_plan.json
 ```
 
 เคสนี้ไม่ต้องรัน `fit_stills.py` — ไม่มีซีนไหนเป็นรูปนิ่งล้วน + มี VO (รันไปก็ขึ้น "nothing to fit")
+
+`edit_plan.json` ชี้ `media_dir` ไปที่โฟลเดอร์ `graded` แล้ว — ถ้าไม่อยากเกรดสี
+ตัดคำว่า `/graded` ออกจากบรรทัด `media_dir` แล้วข้ามสองคำสั่ง `match_grade` ไป
 
 ปิด CapCut ก่อนรัน `build_draft.py` และต้องเคยเซฟโปรเจกต์เปล่าใน CapCut ไว้อย่างน้อย 1 อัน
 
