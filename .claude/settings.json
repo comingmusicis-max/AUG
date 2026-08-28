@@ -1,0 +1,23 @@
+{
+  "permissions": {
+    "allow": [
+      "Bash(python .claude/skills/capcut-edit-builder/scripts/doctor.py:*)",
+      "Bash(python .claude/skills/capcut-edit-builder/scripts/fetch_media.py:*)",
+      "Bash(python .claude/skills/capcut-edit-builder/scripts/fit_stills.py:*)",
+      "Bash(python .claude/skills/capcut-edit-builder/scripts/read_timeline.py:*)",
+      "Bash(python .claude/skills/capcut-edit-builder/scripts/build_draft.py:*)",
+      "Bash(python .claude/skills/capcut-edit-builder/scripts/make_karaoke.py:*)",
+      "Bash(python .claude/skills/capcut-edit-builder/scripts/prepare_subtitles.py:*)",
+      "Bash(python .claude/skills/capcut-edit-builder/scripts/transcribe_audio.py:*)",
+      "Bash(ffprobe:*)",
+      "Bash(ffmpeg -version)",
+      "Bash(git status:*)",
+      "Bash(git diff:*)",
+      "Bash(git log:*)",
+      "Bash(git add:*)",
+      "Bash(git commit:*)",
+      "Bash(git pull:*)",
+      "Bash(git push:*)"
+    ]
+  }
+}
